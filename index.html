@@ -4,9 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DevOps Interview Drill — Complete Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 <style>
-:root{--bg:#07070d;--surf:#0e0e1a;--surf2:#16162a;--surf3:#1e1e32;--bord:#252538;--bord2:#35354e;--accent:#6c63ff;--acc2:#ff6584;--green:#00d4a1;--amber:#ffb84d;--red:#ff5757;--blue:#4d9fff;--purple:#c084fc;--teal:#2dd4bf;--text:#e8e8f2;--muted:#7878a0;--dim:#44445a;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;--r:8px;--r2:12px;}
+:root{
+  --bg:#07070d;
+  --surf:#0e0e1a;
+  --surf2:#16162a;
+  --surf3:#1e1e32;
+  --bord:#252538;
+  --bord2:#35354e;
+  --accent:#6c63ff;
+  --acc2:#ff6584;
+  --green:#00d4a1;
+  --amber:#ffb84d;
+  --red:#ff5757;
+  --blue:#4d9fff;
+  --purple:#c084fc;
+  --teal:#2dd4bf;
+  --text:#e8e8f2;
+  --muted:#7878a0;
+  --dim:#44445a;
+
+  /* Fonts */
+  --mono:'JetBrains Mono', monospace;
+  --sans:'Roboto', sans-serif;
+
+  --r:8px;
+  --r2:12px;
+}
+
+body{
+  font-family: var(--sans);
+}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
