@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Interview Drill — Complete Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070d;--surf:#0e0e1a;--surf2:#16162a;--surf3:#1e1e32;--bord:#252538;--bord2:#35354e;--accent:#6c63ff;--acc2:#ff6584;--green:#00d4a1;--amber:#ffb84d;--red:#ff5757;--blue:#4d9fff;--purple:#c084fc;--teal:#2dd4bf;--text:#e8e8f2;--muted:#7878a0;--dim:#44445a;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;--r:8px;--r2:12px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,99,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:1.75rem 1.25rem;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--bord);}
+.logo{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;}
+.logo em{color:var(--muted);font-style:normal;}
+.hdr-right{display:flex;align-items:center;gap:1rem;}
+.live-badge{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.62rem;color:var(--muted);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.timer{font-family:var(--mono);font-size:.75rem;color:var(--text);background:var(--surf2);border:1px solid var(--bord);padding:4px 10px;border-radius:var(--r);}
+
+/* SCORE STRIP */
+.score-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.5rem;}
+.sc-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:.65rem .9rem;}
+.sc-label{font-family:var(--mono);font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.sc-val{font-size:1.5rem;font-weight:800;}
+.c-white{color:var(--text)}.c-green{color:var(--green)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:1.25rem;}
+.prog-bar{display:flex;gap:3px;margin-bottom:.4rem;}
+.prog-seg{height:3px;flex:1;border-radius:2px;background:var(--bord);transition:background .4s;}
+.prog-seg.done{background:var(--green)}.prog-seg.cur{background:var(--accent)}.prog-seg.skip{background:var(--amber)}.prog-seg.weak{background:var(--red)}
+.prog-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;color:var(--dim);}
+
+/* MODE BAR */
+.mode-bar{display:flex;gap:.4rem;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:4px;margin-bottom:1.25rem;}
+.mode-btn{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;padding:6px 14px;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;flex:1;text-align:center;}
+.mode-btn.active{background:var(--surf3);color:var(--text);border:1px solid var(--bord2);}
+
+/* CATEGORY TABS */
+.cat-scroll{overflow-x:auto;padding-bottom:4px;margin-bottom:1.25rem;-ms-overflow-style:none;scrollbar-width:none;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-tabs{display:flex;gap:.4rem;width:max-content;}
+.ctab{font-family:var(--mono);font-size:.6rem;padding:5px 12px;border-radius:99px;border:1px solid var(--bord);background:transparent;color:var(--muted);cursor:pointer;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;transition:all .15s;}
+.ctab:hover{border-color:var(--bord2);color:var(--text);}
+.ctab.active{color:#fff;border-color:transparent;}
+.ctab[data-c="all"].active{background:var(--accent)}
+.ctab[data-c="docker"].active{background:#0099cc}
+.ctab[data-c="k8s"].active{background:#326ce5}
+.ctab[data-c="cicd"].active{background:#2da44e}
+.ctab[data-c="project"].active{background:var(--amber);color:#000}
+.ctab[data-c="aws"].active{background:#ff9900;color:#000}
+.ctab[data-c="linux"].active{background:#e64545}
+.ctab[data-c="networking"].active{background:#0ea5a0;color:#000}
+.ctab[data-c="crypto"].active{background:#7c3aed}
+.ctab[data-c="rds"].active{background:#c2271b}
+.ctab[data-c="terraform"].active{background:#5c3fdb}
+.ctab[data-c="ansible"].active{background:#b91c1c}
+.ctab[data-c="monitoring"].active{background:#0d9488}
+.ctab-count{font-size:.5rem;opacity:.7;margin-left:3px;}
+
+/* QUESTION CARD */
+.q-card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r2);overflow:hidden;margin-bottom:1.25rem;}
+.q-top{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.25rem;border-bottom:1px solid var(--bord);background:var(--surf2);}
+.q-meta{display:flex;align-items:center;gap:.6rem;}
+.q-num{font-family:var(--mono);font-size:.65rem;color:var(--muted);}
+.cat-badge{font-family:var(--mono);font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;}
+.cb-docker{background:rgba(0,153,204,.15);color:#0099cc;border:1px solid rgba(0,153,204,.3)}
+.cb-k8s{background:rgba(50,108,229,.15);color:#6b93f5;border:1px solid rgba(50,108,229,.3)}
+.cb-cicd{background:rgba(45,164,78,.15);color:#3dcc6e;border:1px solid rgba(45,164,78,.3)}
+.cb-project{background:rgba(255,184,77,.15);color:var(--amber);border:1px solid rgba(255,184,77,.3)}
+.cb-aws{background:rgba(255,153,0,.15);color:#ff9900;border:1px solid rgba(255,153,0,.3)}
+.cb-linux{background:rgba(230,69,69,.15);color:#ff6b6b;border:1px solid rgba(230,69,69,.3)}
+.cb-networking{background:rgba(14,165,160,.15);color:var(--teal);border:1px solid rgba(14,165,160,.3)}
+.cb-crypto{background:rgba(124,58,237,.15);color:var(--purple);border:1px solid rgba(124,58,237,.3)}
+.cb-rds{background:rgba(194,39,27,.15);color:#f87171;border:1px solid rgba(194,39,27,.3)}
+.cb-terraform{background:rgba(92,63,219,.15);color:#818cf8;border:1px solid rgba(92,63,219,.3)}
+.cb-ansible{background:rgba(185,28,28,.15);color:#fca5a5;border:1px solid rgba(185,28,28,.3)}
+.cb-monitoring{background:rgba(13,148,136,.15);color:var(--teal);border:1px solid rgba(13,148,136,.3)}
+.diff-badge{font-family:var(--mono);font-size:.58rem;font-weight:600;padding:2px 8px;border-radius:4px;text-transform:uppercase;}
+.db-easy{background:rgba(0,212,161,.1);color:var(--green);border:1px solid rgba(0,212,161,.2)}
+.db-medium{background:rgba(255,184,77,.1);color:var(--amber);border:1px solid rgba(255,184,77,.2)}
+.db-hard{background:rgba(255,87,87,.1);color:var(--red);border:1px solid rgba(255,87,87,.2)}
+.db-troubleshoot{background:rgba(77,159,255,.1);color:var(--blue);border:1px solid rgba(77,159,255,.2)}
+.q-actions{display:flex;gap:.4rem;}
+.icon-btn{background:transparent;border:1px solid var(--bord);color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.icon-btn:hover{border-color:var(--bord2);color:var(--text);}
+.q-body{padding:1.25rem;}
+.q-text{font-size:1.05rem;font-weight:600;line-height:1.55;color:var(--text);margin-bottom:1.2rem;}
+.is-trouble .q-text::before{content:'🔧 ';font-size:.9rem;}
+
+/* HINT */
+.hint-row{display:flex;justify-content:flex-end;margin-bottom:.65rem;}
+.hint-btn{font-family:var(--mono);font-size:.6rem;color:var(--dim);background:none;border:1px dashed var(--bord);border-radius:4px;padding:3px 10px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:all .15s;}
+.hint-btn:hover{color:var(--muted);border-color:var(--bord2);}
+.hint-box{display:none;background:rgba(108,99,255,.06);border:1px dashed rgba(108,99,255,.2);border-radius:6px;padding:.7rem 1rem;font-family:var(--mono);font-size:.75rem;color:var(--muted);line-height:1.6;margin-bottom:.75rem;}
+.hint-box.open{display:block;}
+
+/* ANSWER INPUT */
+.ans-label{font-family:var(--mono);font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem;}
+.ans-label::after{content:'';flex:1;height:1px;background:var(--bord);}
+textarea{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:.82rem;padding:.9rem;resize:vertical;min-height:120px;outline:none;transition:border-color .2s;line-height:1.6;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--dim);}
+.action-row{display:flex;gap:.6rem;margin-top:.9rem;align-items:center;flex-wrap:wrap;}
+.btn{font-family:var(--mono);font-size:.68rem;padding:8px 18px;border-radius:6px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;font-weight:700;transition:all .15s;display:flex;align-items:center;gap:.35rem;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#7c74ff;transform:translateY(-1px);}
+.btn-primary:disabled{background:var(--bord);color:var(--dim);transform:none;cursor:not-allowed;}
+.btn-next{background:var(--green);color:#000;}
+.btn-next:hover{background:#00eab5;transform:translateY(-1px);}
+.btn-skip{background:transparent;border:1px solid var(--amber);color:var(--amber);}
+.btn-skip:hover{background:rgba(255,184,77,.1);}
+.btn-ghost{background:transparent;border:1px solid var(--bord);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--bord2);color:var(--text);}
+.char-ct{font-family:var(--mono);font-size:.6rem;color:var(--dim);margin-left:auto;}
+
+/* FLASH MODE */
+.flash-reveal-btn{margin-top:.5rem;}
+.flash-ans{display:none;margin-top:1rem;}
+.flash-rate-row{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;}
+.rate-btn{font-family:var(--mono);font-size:.65rem;padding:7px 16px;border-radius:6px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;font-weight:700;border:1px solid;}
+.rate-strong{background:rgba(0,212,161,.12);color:var(--green);border-color:rgba(0,212,161,.3);}
+.rate-strong:hover{background:rgba(0,212,161,.22);}
+.rate-partial{background:rgba(255,184,77,.12);color:var(--amber);border-color:rgba(255,184,77,.3);}
+.rate-partial:hover{background:rgba(255,184,77,.22);}
+.rate-weak{background:rgba(255,87,87,.12);color:var(--red);border-color:rgba(255,87,87,.3);}
+.rate-weak:hover{background:rgba(255,87,87,.22);}
+
+/* THINKING */
+.thinking{display:none;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--muted);padding:.7rem 1.25rem;}
+.thinking.show{display:flex;}
+.dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);margin:0 1px;animation:bounce 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* FEEDBACK */
+.fb-panel{display:none;background:var(--surf2);border:1px solid var(--bord);border-radius:var(--r2);overflow:hidden;margin-bottom:1.25rem;animation:fadeUp .3s ease;}
+.fb-panel.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fb-head{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.1rem;border-bottom:1px solid var(--bord);}
+.fb-title{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);}
+.pills{display:flex;gap:.4rem;}
+.pill{font-family:var(--mono);font-size:.62rem;font-weight:700;padding:2px 10px;border-radius:99px;}
+.pill-green{background:rgba(0,212,161,.12);color:var(--green);border:1px solid rgba(0,212,161,.22);}
+.pill-amber{background:rgba(255,184,77,.12);color:var(--amber);border:1px solid rgba(255,184,77,.22);}
+.pill-red{background:rgba(255,87,87,.12);color:var(--red);border:1px solid rgba(255,87,87,.22);}
+.pill-dim{background:var(--surf3);color:var(--muted);border:1px solid var(--bord);}
+.fb-body{padding:1.1rem;}
+.fb-sec{margin-bottom:.9rem;}
+.fb-sec:last-child{margin-bottom:0;}
+.fb-lbl{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;}
+.lbl-good{color:var(--green)}.lbl-miss{color:var(--amber)}.lbl-model{color:var(--accent)}
+.fb-text{font-size:.85rem;line-height:1.7;color:var(--text);}
+.fb-text ul{padding-left:1rem;margin-top:.25rem;}
+.fb-text li{margin-bottom:.2rem;color:var(--muted);}
+.fb-text li strong,.fb-text strong{color:var(--text);}
+.model-box{background:var(--bg);border:1px solid var(--bord);border-radius:var(--r);padding:.9rem;font-family:var(--mono);font-size:.78rem;line-height:1.7;color:var(--muted);white-space:pre-wrap;}
+
+/* NAV DOTS */
+.nav-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;}
+.ndots{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.ndot{width:8px;height:8px;border-radius:50%;background:var(--bord);cursor:pointer;transition:all .2s;}
+.ndot.done{background:var(--green)}.ndot.cur{background:var(--accent);transform:scale(1.4)}.ndot.skip{background:var(--amber)}.ndot.weak{background:var(--red)}
+.ndot:hover{transform:scale(1.4);}
+.nav-btns{display:flex;gap:.4rem;}
+
+/* SUMMARY */
+.summary{display:none;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r2);padding:3rem 2rem;text-align:center;margin-bottom:1.25rem;}
+.summary.show{display:block;}
+.sum-emoji{font-size:3rem;margin-bottom:.5rem;}
+.sum-title{font-size:1.8rem;font-weight:800;margin-bottom:.3rem;}
+.sum-sub{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-bottom:2rem;}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;max-width:440px;margin:0 auto 2rem;}
+.sum-card{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--r);padding:.9rem;}
+.sum-n{font-size:2rem;font-weight:800;margin-bottom:2px;}
+.sum-l{font-family:var(--mono);font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;}
+.sum-actions{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;}
+
+/* KEYBOARD HINT */
+.kb-hint{font-family:var(--mono);font-size:.58rem;color:var(--dim);text-align:center;margin-top:1rem;}
+.kb-hint kbd{background:var(--surf2);border:1px solid var(--bord);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:.58rem;color:var(--muted);}
+
+@media(max-width:600px){
+  .score-strip{grid-template-columns:repeat(2,1fr);}
+  .sum-grid{grid-template-columns:repeat(3,1fr);}
+  .q-text{font-size:.95rem;}
+  .app{padding:1rem .75rem;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">DevOps<em>/</em>Interview<em>/</em>Drill <em style="color:var(--dim)">v2.0</em></div>
+  <div class="hdr-right">
+    <div class="live-badge"><div class="live-dot"></div><span id="sess-timer">00:00</span></div>
+    <div class="timer" id="mode-lbl">TYPE MODE</div>
+  </div>
+</header>
+
+<div class="score-strip">
+  <div class="sc-card"><div class="sc-label">Answered</div><div class="sc-val c-white" id="sc-ans">0</div></div>
+  <div class="sc-card"><div class="sc-label">Strong</div><div class="sc-val c-green" id="sc-str">0</div></div>
+  <div class="sc-card"><div class="sc-label">Needs Work</div><div class="sc-val c-amber" id="sc-imp">0</div></div>
+  <div class="sc-card"><div class="sc-label">Skipped</div><div class="sc-val c-red" id="sc-skp">0</div></div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-bar" id="prog-bar"></div>
+  <div class="prog-meta"><span id="prog-left">0 of 0</span><span id="prog-pct">0%</span></div>
+</div>
+
+<div class="mode-bar">
+  <button class="mode-btn active" id="mb-type" onclick="setMode('type')">⌨ Type Answer → AI Feedback</button>
+  <button class="mode-btn" id="mb-flash" onclick="setMode('flash')">⚡ Flashcard Mode</button>
+</div>
+
+<div class="cat-scroll">
+<div class="cat-tabs" id="cat-tabs">
+  <button class="ctab active" data-c="all" onclick="filterCat('all',this)">All <span class="ctab-count" id="cc-all">106</span></button>
+  <button class="ctab" data-c="docker" onclick="filterCat('docker',this)">Docker <span class="ctab-count" id="cc-docker"></span></button>
+  <button class="ctab" data-c="k8s" onclick="filterCat('k8s',this)">Kubernetes <span class="ctab-count" id="cc-k8s"></span></button>
+  <button class="ctab" data-c="cicd" onclick="filterCat('cicd',this)">CI/CD <span class="ctab-count" id="cc-cicd"></span></button>
+  <button class="ctab" data-c="project" onclick="filterCat('project',this)">Project <span class="ctab-count" id="cc-project"></span></button>
+  <button class="ctab" data-c="aws" onclick="filterCat('aws',this)">AWS/EKS <span class="ctab-count" id="cc-aws"></span></button>
+  <button class="ctab" data-c="linux" onclick="filterCat('linux',this)">Linux <span class="ctab-count" id="cc-linux"></span></button>
+  <button class="ctab" data-c="networking" onclick="filterCat('networking',this)">Networking <span class="ctab-count" id="cc-networking"></span></button>
+  <button class="ctab" data-c="crypto" onclick="filterCat('crypto',this)">Cryptography <span class="ctab-count" id="cc-crypto"></span></button>
+  <button class="ctab" data-c="rds" onclick="filterCat('rds',this)">RDS <span class="ctab-count" id="cc-rds"></span></button>
+  <button class="ctab" data-c="terraform" onclick="filterCat('terraform',this)">Terraform <span class="ctab-count" id="cc-terraform"></span></button>
+  <button class="ctab" data-c="ansible" onclick="filterCat('ansible',this)">Ansible <span class="ctab-count" id="cc-ansible"></span></button>
+  <button class="ctab" data-c="monitoring" onclick="filterCat('monitoring',this)">Monitoring <span class="ctab-count" id="cc-monitoring"></span></button>
+</div>
+</div>
+
+<div class="q-card" id="q-card">
+  <div class="q-top">
+    <div class="q-meta">
+      <span class="q-num" id="q-num">Q 1 / 106</span>
+      <span class="cat-badge" id="q-cat-badge">docker</span>
+      <span class="diff-badge" id="q-diff-badge">easy</span>
+    </div>
+    <div class="q-actions">
+      <button class="icon-btn" onclick="prevQ()" title="Previous (←)">←</button>
+      <button class="icon-btn" onclick="shuffleQs()" title="Shuffle">⇄</button>
+      <button class="icon-btn" onclick="filterDiff()" title="Filter difficulty" id="diff-filter-btn">⊙</button>
+    </div>
+  </div>
+  <div class="q-body" id="q-body">
+    <div class="q-text" id="q-text"></div>
+    <div class="hint-row"><button class="hint-btn" onclick="toggleHint()">💡 Hint</button></div>
+    <div class="hint-box" id="hint-box"></div>
+
+    <div id="type-area">
+      <div class="ans-label">Your Answer</div>
+      <textarea id="ans-input" placeholder="Type your answer here as you would say it in the interview…" oninput="updateChar()"></textarea>
+      <div class="action-row">
+        <button class="btn btn-primary" id="submit-btn" onclick="submitAns()">▶ Submit</button>
+        <button class="btn btn-skip" onclick="skipQ()">Skip →</button>
+        <button class="btn btn-next" id="next-btn" style="display:none" onclick="nextQ()">Next →</button>
+        <span class="char-ct" id="char-ct">0 chars</span>
+      </div>
+    </div>
+
+    <div id="flash-area" style="display:none">
+      <div id="flash-reveal-row" class="flash-reveal-btn">
+        <div class="action-row">
+          <button class="btn btn-primary" onclick="revealFlash()">👁 Reveal Answer</button>
+          <button class="btn btn-skip" onclick="skipQ()">Skip →</button>
+        </div>
+      </div>
+      <div class="flash-ans" id="flash-ans">
+        <div class="ans-label">Model Answer</div>
+        <div class="model-box" id="flash-ans-text"></div>
+        <div class="flash-rate-row">
+          <button class="rate-btn rate-strong" onclick="markFlash('strong')">✓ Got it</button>
+          <button class="rate-btn rate-partial" onclick="markFlash('partial')">~ Partial</button>
+          <button class="rate-btn rate-weak" onclick="markFlash('weak')">✗ Need work</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="thinking" id="thinking"><div class="dots"><span></span><span></span><span></span></div><span>Evaluating your answer…</span></div>
+</div>
+
+<div class="fb-panel" id="fb-panel">
+  <div class="fb-head">
+    <span class="fb-title">Feedback</span>
+    <div class="pills" id="fb-pills"></div>
+  </div>
+  <div class="fb-body" id="fb-body"></div>
+</div>
+
+<div class="summary" id="summary">
+  <div class="sum-emoji" id="sum-emoji">🎯</div>
+  <div class="sum-title" id="sum-title">Session Complete</div>
+  <div class="sum-sub" id="sum-sub">Here's how you did</div>
+  <div class="sum-grid">
+    <div class="sum-card"><div class="sum-n c-green" id="sum-str">0</div><div class="sum-l">Strong</div></div>
+    <div class="sum-card"><div class="sum-n c-amber" id="sum-imp">0</div><div class="sum-l">Needs Work</div></div>
+    <div class="sum-card"><div class="sum-n c-red" id="sum-skp">0</div><div class="sum-l">Skipped</div></div>
+  </div>
+  <div class="sum-actions">
+    <button class="btn btn-primary" onclick="restart()">↺ Restart</button>
+    <button class="btn btn-ghost" onclick="reviewWeak()">📋 Review Weak</button>
+  </div>
+</div>
+
+<div class="nav-row">
+  <div class="ndots" id="nav-dots"></div>
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="prevQ()" style="padding:6px 12px">←</button>
+    <button class="btn btn-ghost" onclick="nextQ()" style="padding:6px 12px">→</button>
+  </div>
+</div>
+<div class="kb-hint"><kbd>Enter</kbd> submit &nbsp;·&nbsp; <kbd>Tab</kbd> next &nbsp;·&nbsp; <kbd>S</kbd> skip &nbsp;·&nbsp; <kbd>H</kbd> hint &nbsp;·&nbsp; <kbd>←</kbd><kbd>→</kbd> navigate</div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const ALL_QUESTIONS = [
+  {cat:"docker",diff:"easy",q:`What is the difference between a Docker image and a container?`,hint:`Think: blueprint vs running instance. What creates each one?`,answer:`An image is a read-only snapshot built by docker build — it contains the app, dependencies, and config. A container is a running instance of that image created by docker run. You can run many containers from the same image. Image is the blueprint/class, container is the object/instance.`},
+  {cat:"docker",diff:"easy",q:`What does EXPOSE do in a Dockerfile vs ports in Docker Compose?`,hint:`EXPOSE is documentation. ports binds to host. Who can access what?`,answer:`EXPOSE documents which port the container listens on — it does not publish anything to the host. In Docker Compose, ports maps host:container making the service reachable from your laptop. expose (in compose) only makes the port accessible to other containers on the same Docker network, not the host. For Flask behind Nginx we use expose:5000 so only Nginx can reach it.`},
+  {cat:"docker",diff:"medium",q:`Why did you use a multi-stage build in the Message Board Dockerfile?`,hint:`First stage: build tools. Second stage: runtime only. What problem does this solve?`,answer:`The builder stage installs gcc, musl-dev, mariadb-dev to compile Python packages. The runtime stage starts fresh from clean Alpine and only copies compiled packages — not build tools. This keeps the production image small and secure. Without multi-stage, the image carries compilers the running container never needs.`},
+  {cat:"docker",diff:"medium",q:`Why does docker-compose.yml use depends_on with condition: service_healthy?`,hint:`MySQL takes 10-20s to initialize. What happens if Flask connects too early?`,answer:`Plain depends_on only waits for the container to START, not for MySQL to be READY. MySQL takes time to initialize. Without the healthcheck condition, Flask starts, tries to connect, fails, and crashes. The healthcheck polls mysqladmin ping until MySQL accepts connections, then allows Flask to start.`},
+  {cat:"docker",diff:"easy",q:`What is Docker layer caching and why does it matter?`,hint:`Which lines change often vs rarely? Dependencies vs source code.`,answer:`Docker builds images layer by layer. If a layer is unchanged, Docker reuses the cached version. That is why we COPY requirements.txt and pip install BEFORE copying the rest of the code — dependencies change less often. This way a code change does not trigger a full pip reinstall, making rebuilds much faster.`},
+  {cat:"docker",diff:"medium",q:`What is Docker Compose and why use it for local development?`,hint:`What problem does running docker run manually for each service cause?`,answer:`Docker Compose lets you define and run multi-container apps from a single docker-compose.yml. Instead of running docker run with manual networking for each container, compose up starts Flask, MySQL, and phpMyAdmin together on the same network with env vars and healthchecks. One command replaces a long sequence of manual steps.`},
+  {cat:"docker",diff:"hard",q:`What is the difference between COPY and ADD in a Dockerfile?`,hint:`ADD has extra powers. When should you avoid ADD?`,answer:`COPY simply copies files from host to container — straightforward and preferred. ADD does everything COPY does, plus: it can extract tar archives automatically, and it can fetch URLs. These extra features make ADD unpredictable and harder to reason about. Best practice: always use COPY unless you specifically need tar extraction or URL fetching. Using ADD for simple copies is bad practice.`},
+  {cat:"docker",diff:"medium",q:`How do you reduce Docker image size? Name at least 4 techniques.`,hint:`Base image choice, layers, build artifacts, package caches.`,answer:`1. Use Alpine or distroless base images instead of full Ubuntu/Debian. 2. Multi-stage builds — only copy what runtime needs. 3. Combine RUN commands with && to reduce layers. 4. Add --no-cache-dir to pip install and clean apt cache in the same RUN. 5. Use .dockerignore to exclude node_modules, .git, test files. 6. Use JRE not JDK for Java runtime. 7. Copy only specific files needed, not entire directories.`},
+  {cat:"docker",diff:"medium",q:`🔧 TROUBLESHOOT: Your Flask container starts but immediately exits. How do you debug it?`,hint:`Check logs, check exit code, run interactively. Common causes?`,answer:`1. docker logs <container_id> — see what the process printed before dying. 2. docker run -it <image> sh — run interactively to inspect. 3. Check CMD/ENTRYPOINT — container stays alive only while PID 1 runs. 4. Check env vars — missing MYSQL_HOST, wrong DB credentials. 5. Check for import errors — missing dependency not in requirements.txt. 6. docker inspect <container> — check exit code (137=OOM killed, 1=app error, 127=command not found).`},
+  {cat:"docker",diff:"medium",q:`🔧 TROUBLESHOOT: docker-compose up fails with 'port is already allocated'. What do you do?`,hint:`Something else is using that port on the host. How do you find and fix it?`,answer:`1. lsof -i :5000 or ss -tulpn | grep 5000 — find what process is using the port. 2. Kill it: kill -9 <PID> or stop the service. 3. Or change the host port in docker-compose.yml: '5001:5000'. 4. If it is a stale Docker container: docker ps -a to find it, docker rm -f <id> to remove it. 5. docker-compose down before restarting to clean up existing containers from previous runs.`},
+  {cat:"docker",diff:"hard",q:`🔧 TROUBLESHOOT: Docker image builds fine locally but fails in CI with network errors during pip install. Why?`,hint:`CI environments have restricted networking. Proxy, DNS, mirror settings.`,answer:`1. CI runners may have proxy settings — set HTTP_PROXY/HTTPS_PROXY env vars. 2. The base image may use a private mirror configured locally but not in CI — specify --index-url https://pypi.org/simple explicitly. 3. Check if the CI runner has outbound internet access at all (corporate CI may be air-gapped). 4. Use pip install --no-cache-dir to avoid cache permission issues. 5. Pin versions in requirements.txt so the build is deterministic. 6. Add --network=host flag to docker build in restricted CI environments.`},
+  {cat:"k8s",diff:"easy",q:`What is the difference between a liveness probe and a readiness probe?`,hint:`Liveness: is it alive? Readiness: is it ready for traffic? What happens when each fails?`,answer:`Liveness probe asks: is the container still alive? If it fails, K8s restarts the pod. Readiness probe asks: is the container ready to receive traffic? If it fails, K8s removes the pod from Service endpoints — no traffic sent — but does NOT restart it. We use both: readiness prevents traffic to warming-up pods, liveness catches frozen or crashed pods.`},
+  {cat:"k8s",diff:"medium",q:`What is the difference between a PersistentVolume (PV) and a PersistentVolumeClaim (PVC)?`,hint:`Storage pool vs storage request. What happens to data when a pod crashes?`,answer:`A PV is actual storage provisioned in the cluster. A PVC is a request for storage by a pod. The pod does not talk to the PV directly — it claims storage via PVC, and K8s binds the PVC to a suitable PV. This decouples storage location from usage. If the MySQL pod crashes, the PV keeps the data — the new pod mounts the same PVC.`},
+  {cat:"k8s",diff:"easy",q:`Why use a Kubernetes Secret instead of hardcoding passwords in deployment YAML?`,hint:`Git history, who can read the repo, rotation.`,answer:`Hardcoded passwords in YAML end up in Git — readable by anyone with repo access, stored in history forever. Secrets store sensitive data separately, accessed by pods at runtime via env vars or volume mounts. In production also use Vault or AWS Secrets Manager. Secrets allow rotation without changing deployments.`},
+  {cat:"k8s",diff:"medium",q:`How does the HPA (Horizontal Pod Autoscaler) work in your project?`,hint:`What does it watch? What happens when load increases? Min/max values?`,answer:`HPA watches the metrics-server for CPU usage across all Flask pods. We set target at 50% CPU. When average CPU exceeds 50%, it adds pods — up to max of 5. When load drops, it scales down but never below minimum of 2. It re-evaluates every 15 seconds. We enabled the metrics-server addon on minikube to support this.`},
+  {cat:"k8s",diff:"medium",q:`What is a Kubernetes Namespace and why did you create one for this project?`,hint:`Isolation and cleanup. What else shares the cluster?`,answer:`A namespace is a virtual cluster inside the real cluster — logically isolates resources. We created message-board namespace to separate our app from system resources in kube-system. kubectl delete namespace message-board removes everything at once. In production, namespaces separate environments or teams.`},
+  {cat:"k8s",diff:"hard",q:`What is Ingress in Kubernetes? How is it better than NodePort or LoadBalancer?`,hint:`Cost: one ALB vs many. Routing: path-based vs per-service.`,answer:`Ingress manages external HTTP access to services — one entry point routing traffic based on path or hostname. NodePort gives an ugly port number per service; LoadBalancer creates a cloud load balancer per service (expensive). Ingress uses ONE load balancer for all services, supports path/host routing, and centralizes TLS. In AWS, the ALB controller provisions one ALB total instead of one per service.`},
+  {cat:"k8s",diff:"medium",q:`What is the difference between a Deployment and a StatefulSet?`,hint:`Pod identity, stable hostname, ordered startup. Which for databases?`,answer:`A Deployment manages identical interchangeable pods — any pod can be replaced by another. Good for stateless apps like Flask. A StatefulSet provides: stable network identity (pod-0, pod-1), stable persistent storage (each pod gets its own PVC), and ordered startup/shutdown. Used for stateful apps like databases, Kafka where pod identity and startup order matter.`},
+  {cat:"k8s",diff:"hard",q:`What is a ConfigMap and when do you use it instead of a Secret?`,hint:`ConfigMap: non-sensitive config. Secret: sensitive data. Base64 encoding?`,answer:`ConfigMap stores non-sensitive configuration as key-value pairs — things like MYSQL_HOST, MYSQL_DB, app config flags. Secrets are for sensitive data (passwords, tokens, certs) — stored base64-encoded (not encrypted by default, but can be encrypted at rest with KMS). Rule: if you would not commit it to a public repo, use a Secret. ConfigMap for everything else.`},
+  {cat:"k8s",diff:"medium",q:`🔧 TROUBLESHOOT: Your pod is stuck in CrashLoopBackOff. What steps do you take?`,hint:`K8s keeps restarting it. How do you see what went wrong?`,answer:`1. kubectl describe pod <name> -n <namespace> — look at Events section. 2. kubectl logs <pod> -n <namespace> — see stdout/stderr. 3. kubectl logs <pod> --previous — logs from the PREVIOUS crash (most useful). 4. Common causes: wrong env var (bad DB password), missing ConfigMap/Secret, app crashes on startup (import error), OOMKilled (increase memory limits). 5. kubectl get events -n <namespace> --sort-by=.lastTimestamp for cluster-wide events.`},
+  {cat:"k8s",diff:"medium",q:`🔧 TROUBLESHOOT: Your pod is Pending and never becomes Running. What do you check?`,hint:`K8s cannot schedule it. Resources, node availability, taints, image.`,answer:`1. kubectl describe pod <name> — Events section will say why it cannot schedule. 2. Insufficient CPU/memory — node does not have enough resources: kubectl describe nodes. 3. PVC not bound — storage class issue: kubectl get pvc. 4. Image pull error — wrong tag, private registry without imagePullSecret. 5. Node selector/affinity rules that no node matches. 6. kubectl get nodes — verify nodes are Ready.`},
+  {cat:"k8s",diff:"hard",q:`🔧 TROUBLESHOOT: Service is running but you cannot reach the app from outside. What do you investigate?`,hint:`Work backwards: DNS → Service → Endpoints → Pod → Network.`,answer:`1. kubectl get svc — check service type, port mapping. 2. kubectl get endpoints <svc-name> — if empty, selector does not match any pod labels. Compare pod labels vs service selector. 3. kubectl exec -it <pod> -- curl localhost:5000 — can the pod reach itself? 4. For NodePort: check EC2 security group allows the NodePort. 5. For Ingress: kubectl describe ingress — check events. 6. kubectl logs on the ALB controller for AWS-specific Ingress issues. 7. minikube service <svc-name> --url on local clusters.`},
+  {cat:"cicd",diff:"easy",q:`What is the difference between CI and CD?`,hint:`CI = build and test. CD = deploy. Which does your GitHub Actions pipeline do?`,answer:`CI (Continuous Integration) automatically builds and tests code on every push — catching bugs early. CD (Continuous Delivery/Deployment) automatically packages and releases code after a successful build. In our pipeline: CI is the docker build + push. CD is the values.yaml update that triggers ArgoCD to deploy to EKS.`},
+  {cat:"cicd",diff:"medium",q:`Why does your GitHub Actions pipeline trigger on v* tags instead of every push?`,hint:`DockerHub clutter, versioning, rollbacks, intentional releases.`,answer:`Triggering on every push would build a new image for every typo fix. Tag-based triggers mean only intentional releases create images. Every DockerHub image maps to a specific version tag — easy to trace, easy to roll back. It prevents polluting DockerHub with unversioned overwrites and ties every deploy to a deliberate version.`},
+  {cat:"cicd",diff:"medium",q:`Why did you add ref: main in the GitHub Actions checkout step?`,hint:`What Git state happens when triggered by a tag push? Can you push from detached HEAD?`,answer:`When triggered by a tag push, GitHub Actions checks out the tag — putting Git in detached HEAD state. In detached HEAD, pushing back to a branch fails. By specifying ref: main, the runner is on the main branch, so after updating values.yaml it can commit and push back to main normally.`},
+  {cat:"cicd",diff:"hard",q:`Why did you add permissions: contents: write and why is it more secure than a PAT?`,hint:`What does GITHUB_TOKEN have by default? What does a PAT expose?`,answer:`By default GITHUB_TOKEN has read-only access. The pipeline needs to push a commit back to main to update values.yaml — that requires write. A Personal Access Token (PAT) is long-lived with broad scope — if leaked it exposes everything. GITHUB_TOKEN is auto-generated, scoped to the repo, and expires when the run ends.`},
+  {cat:"cicd",diff:"medium",q:`What is GitOps and how does ArgoCD implement it?`,hint:`Git as single source of truth. Pull vs push deployment. Self-healing.`,answer:`GitOps means the Git repository is the single source of truth for what runs in the cluster. Changes happen via pull requests — full audit trail. ArgoCD implements GitOps by running inside the cluster and watching the Git repo. When it detects a change (new image tag in values.yaml), it automatically syncs the cluster. Self-healing: if someone manually kubectl applies something that differs from Git, ArgoCD reverts it.`},
+  {cat:"cicd",diff:"medium",q:`What are GitHub Actions secrets and why never hardcode credentials in workflow YAML?`,hint:`Who can read workflow files? What is stored in Git history?`,answer:`GitHub Actions secrets are encrypted variables stored in GitHub Settings — accessed as \${{ secrets.NAME }}. Never logged, never visible in plain text. Hardcoding credentials in workflow YAML means they are committed to Git — visible to anyone with repo access, stored in history forever even after deletion. Always use secrets for: DockerHub tokens, AWS keys, SSH keys, database passwords.`},
+  {cat:"cicd",diff:"medium",q:`🔧 TROUBLESHOOT: GitHub Actions workflow runs but the Docker image is not appearing in DockerHub. What do you check?`,hint:`Authentication, image naming, push command. Check logs step by step.`,answer:`1. Check workflow run logs — expand each step to see the exact error. 2. Verify DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets exist in Settings → Secrets. 3. Check image tag format: must be username/image-name:tag. Typo in username causes 'access denied'. 4. Verify the DockerHub token has Write permissions — generate a new one with Read/Write scope at hub.docker.com → Account Settings → Security. 5. Check if the build step succeeded before push — a failed build means no image to push.`},
+  {cat:"cicd",diff:"hard",q:`🔧 TROUBLESHOOT: ArgoCD shows OutOfSync but your app is running fine. What does this mean?`,hint:`Diff between Git desired state and cluster actual state. Drift.`,answer:`OutOfSync means ArgoCD detects a difference between what Git says and what is in the cluster. 1. ArgoCD UI → App → Diff tab — shows exactly which fields differ. 2. Common causes: someone ran kubectl apply or kubectl edit manually. A controller added annotations automatically. 3. If it is just auto-added annotations, configure ArgoCD to ignore those fields with ignoreDifferences. 4. If manual drift: click Sync to bring cluster back to Git state. 5. Enable selfHeal: true to prevent this automatically.`},
+  {cat:"project",diff:"easy",q:`Walk me through your Message Board project architecture end to end.`,hint:`Start with dev pushes a tag. End with user hits the ALB. Name every layer.`,answer:`Flask + MySQL 2-tier app. Dev pushes git tag → GitHub Actions builds Docker image, pushes to DockerHub, updates image tag in values.yaml, commits back to main → ArgoCD detects the change and runs helm upgrade on EKS → Flask pods roll out with new image → AWS Load Balancer Controller provisions an ALB → users hit the ALB DNS. Flask runs 2-5 pods via HPA, MySQL has persistent storage via PVC.`},
+  {cat:"project",diff:"medium",q:`Why did you choose ArgoCD instead of just running helm upgrade inside your CI pipeline?`,hint:`Security, self-healing, audit trail, drift detection.`,answer:`Running helm upgrade in CI is push-based — CI needs cluster credentials, a security risk. ArgoCD is pull-based — it runs inside the cluster and pulls changes from Git. It also gives self-healing (reverts manual kubectl changes), a visual UI for pod health, built-in rollback, and drift detection. The cluster is never exposed to the CI runner.`},
+  {cat:"project",diff:"medium",q:`Why did you keep the Ingress resource outside the Helm chart?`,hint:`What happens to Ingress if you helm uninstall then reinstall?`,answer:`Ingress is a cluster-level resource not tied to a specific release. If we uninstall and reinstall the Helm chart during testing, we do not want Ingress deleted and recreated — that causes DNS downtime while the ALB is re-provisioned. Keeping it separate means it is managed independently and reused across deployments.`},
+  {cat:"project",diff:"hard",q:`What was the hardest debugging problem you solved in this project?`,hint:`Be specific. ALB not provisioning, OIDC trust policy, detached HEAD.`,answer:`The ALB not provisioning after applying Ingress. The controller was running but ADDRESS was empty. Root cause: the OIDC trust policy sub field needed to exactly match system:serviceaccount:kube-system:aws-load-balancer-controller. One wrong character and STS silently rejects the token. Debugged by checking kubectl logs on the controller pod which showed the AssumeRoleWithWebIdentity error.`},
+  {cat:"project",diff:"medium",q:`What would you improve in this project with more time?`,hint:`RDS, TLS, monitoring, environment separation, security hardening.`,answer:`Move MySQL to RDS — stateful databases in K8s are complex. Add TLS to the ALB using ACM certificates. Split values.yaml into per-environment overrides (values-dev.yaml, values-prod.yaml). Add Prometheus + Grafana monitoring. Set up branch protection on main. Add Docker image vulnerability scanning in CI with Trivy.`},
+  {cat:"project",diff:"hard",q:`🔧 TROUBLESHOOT: After helm install, Flask pods are running but app returns 500 errors. MySQL pod is also running. What do you investigate?`,hint:`App is up but backend failing. Connection string, credentials, DB initialization.`,answer:`1. kubectl logs <flask-pod> — check Python traceback. Likely a DB connection error. 2. Verify env vars: kubectl exec -it <flask-pod> -- env | grep MYSQL. Check MYSQL_HOST matches the MySQL service name exactly. 3. kubectl exec -it <mysql-pod> -- mysql -u flask -pflask123 — test credentials manually. 4. Check if the flask_app database and tables exist — app may need schema on first start. 5. kubectl get svc — verify mysql-service exists. 6. kubectl get secret mysql-secret -o yaml and decode base64 values to verify passwords.`},
+  {cat:"aws",diff:"medium",q:`What is IRSA (IAM Roles for Service Accounts) and why is it needed?`,hint:`How does the ALB controller call AWS APIs without hardcoded credentials?`,answer:`IRSA lets pods assume AWS IAM roles without hardcoded credentials. EKS issues OIDC tokens for K8s Service Accounts. The OIDC provider in IAM trusts those tokens. STS exchanges the token for temporary credentials. The ALB controller gets short-lived credentials scoped to exactly the permissions it needs — far more secure than storing Access Keys in Secrets.`},
+  {cat:"aws",diff:"easy",q:`What is the difference between minikube and AWS EKS?`,hint:`Control plane location, HA, real load balancers, cost, accessibility.`,answer:`Minikube is a local single-node cluster — free, no real load balancers, no HA, only accessible locally. EKS is AWS managed Kubernetes — control plane managed by AWS across multiple AZs, worker nodes are real EC2, load balancers are real AWS ALBs, globally accessible via IAM. Minikube for learning, EKS for production.`},
+  {cat:"aws",diff:"medium",q:`Why does EKS need subnets in at least 3 Availability Zones?`,hint:`HA, ALB requirement, control plane spread, pod scheduling.`,answer:`High availability: if one AZ fails, pods in other AZs keep running. AWS ALBs require subnets in at least 2 AZs. The EKS control plane runs across multiple AZs. Pod replicas spread across AZs so a datacenter failure does not kill the app. Best practice is one subnet per AZ — we used all 3 AZs in us-east-1.`},
+  {cat:"aws",diff:"hard",q:`What are the two IAM roles needed for EKS and why are they different?`,hint:`One is for the cluster control plane, one is for worker nodes.`,answer:`The EKS Cluster Role (eks-cluster-role) is assumed by the EKS control plane to manage cluster resources. The Node Group Role (eks-nodegroup-role) is assumed by EC2 worker nodes — needs AmazonEKSWorkerNodePolicy to register with the cluster, AmazonEC2ContainerRegistryReadOnly to pull images from ECR, and AmazonEKS_CNI_Policy for the VPC CNI plugin.`},
+  {cat:"aws",diff:"medium",q:`What is the AWS Load Balancer Controller and why is it needed for EKS Ingress?`,hint:`Who creates the actual ALB when you apply an Ingress manifest?`,answer:`The AWS Load Balancer Controller is a K8s controller that watches for Ingress resources and creates AWS ALBs. Without it, Kubernetes does not know how to provision AWS load balancers. When you kubectl apply an Ingress with ingressClassName: alb, the controller calls the AWS API to create an ALB, creates target groups pointing to pod IPs, and writes the ALB DNS name back to ingress.status.`},
+  {cat:"aws",diff:"hard",q:`🔧 TROUBLESHOOT: kubectl get nodes returns Unauthorized after aws eks update-kubeconfig. What do you check?`,hint:`IAM identity, access entries, kubeconfig context. Who created the cluster?`,answer:`1. aws sts get-caller-identity — confirm which IAM user/role you are authenticated as. 2. The cluster was likely created by a different IAM user — only the creator has access by default. 3. Go to EKS → cluster → Access tab → Create access entry. 4. Add your IAM ARN with AmazonEKSAdminPolicy + AmazonEKSClusterPolicy. 5. Check kubeconfig: cat ~/.kube/config — verify cluster endpoint and region are correct. 6. Re-run aws eks update-kubeconfig --name <cluster> --region <region>.`},
+  {cat:"aws",diff:"hard",q:`🔧 TROUBLESHOOT: Your ALB Ingress is applied but ADDRESS stays empty after 5 minutes. How do you debug?`,hint:`ALB controller should create the ALB. Work backwards from controller logs.`,answer:`1. kubectl logs -n kube-system deployment/aws-load-balancer-controller — shows exactly why ALB creation failed. Common errors: AssumeRoleWithWebIdentity failed (wrong OIDC trust policy), subnet not found, missing subnet tags. 2. kubectl describe ingress <name> — check Events section. 3. Verify subnets in annotation exist and are public (for internet-facing). 4. Tag public subnets: kubernetes.io/role/elb=1. 5. Check OIDC trust policy sub field matches service account exactly. 6. Verify eks-alb-role ARN in the Service Account annotation is correct.`},
+  {cat:"linux",diff:"easy",q:`What is the difference between a process and a thread in Linux?`,hint:`Memory space, resources, creation cost.`,answer:`A process is an independent program with its own memory space, file descriptors, and resources. A thread is a unit of execution within a process — threads share the same memory space and resources as their parent. Creating a thread is cheaper than a process. In Linux both are managed by kernel via task_struct — threads are processes that share resources via clone().`},
+  {cat:"linux",diff:"easy",q:`What does chmod 755 mean and how does the Linux permission model work?`,hint:`Owner, group, others. Read=4, Write=2, Execute=1.`,answer:`chmod 755 sets: owner=rwx (4+2+1=7), group=r-x (4+0+1=5), others=r-x (5). Linux has three permission classes — owner, group, others — and three bits — read(4), write(2), execute(1). For directories, execute means you can cd into it. chmod, chown, chgrp manage these. Special bits: setuid(4), setgid(2), sticky(1).`},
+  {cat:"linux",diff:"medium",q:`What is the difference between hard links and symbolic links?`,hint:`Hard link: same inode. Soft link: pointer to path. What happens when original is deleted?`,answer:`A hard link is another directory entry pointing to the same inode — same actual data. If the original is deleted, data persists because the inode still has references. A symlink is a pointer to a file path — if original is deleted, symlink breaks (dangling). Hard links cannot span filesystems or link directories. Symlinks can. ln -s creates symlinks.`},
+  {cat:"linux",diff:"medium",q:`Explain the Linux boot process from power-on to shell prompt.`,hint:`BIOS/UEFI → bootloader → kernel → init → services → login.`,answer:`BIOS/UEFI runs POST and finds the bootable disk. GRUB loads the Linux kernel and initramfs into memory. Kernel initializes hardware, mounts initramfs as temporary root, loads drivers. Kernel runs /sbin/init (systemd on modern systems) as PID 1. Systemd reads unit files, starts services in dependency order. Getty or login manager presents the shell prompt.`},
+  {cat:"linux",diff:"easy",q:`What is the difference between ps, top, and htop?`,hint:`ps: snapshot. top: live. htop: interactive. When do you use each?`,answer:`ps shows a static snapshot of current processes — good for scripting (ps aux | grep nginx). top is a live-updating view sorted by CPU — useful for seeing what is consuming resources. htop is an enhanced interactive top with color, mouse support, and easier process management. In DevOps: ps in scripts, top/htop for live troubleshooting on a server.`},
+  {cat:"linux",diff:"medium",q:`What is a Linux signal? Name 3 important ones and when you use each.`,hint:`Software interrupts. SIGTERM, SIGKILL, SIGHUP.`,answer:`A signal is a software interrupt sent to a process. SIGTERM (15): graceful shutdown — process can catch it and clean up. SIGKILL (9): cannot be caught or ignored — kernel force-kills immediately. SIGHUP (1): tells daemons to reload config (nginx -s reload sends SIGHUP). In Kubernetes, pods receive SIGTERM first, then SIGKILL after terminationGracePeriodSeconds expires.`},
+  {cat:"linux",diff:"medium",q:`What is the difference between /etc/passwd and /etc/shadow?`,hint:`passwd: user info, world-readable. shadow: hashed passwords, restricted.`,answer:`/etc/passwd stores user account info — username, UID, GID, home directory, shell — world-readable. /etc/shadow stores hashed passwords and aging info — only readable by root. Separating them means unprivileged users cannot see hashes, reducing brute-force attack surface. Modern systems use SHA-512 in shadow.`},
+  {cat:"linux",diff:"hard",q:`What is a zombie process and how do you handle it?`,hint:`A zombie has exited but parent has not called wait(). It holds a PID slot.`,answer:`A zombie has finished execution but remains in the process table because its parent has not called wait() to read its exit status. It holds a PID but uses no CPU or memory. You cannot kill it with SIGKILL — it is already dead. Fix: kill the parent process (kernel then reaps the zombie), or send SIGCHLD to the parent. PID 1 (systemd) automatically adopts and reaps orphaned zombies.`},
+  {cat:"linux",diff:"medium",q:`What is systemd and what does a .service unit file define?`,hint:`PID 1, service manager. ExecStart, Restart, After, User.`,answer:`Systemd is the init system and service manager on modern Linux — PID 1, everything else is its child. A unit file (.service) defines: ExecStart (command to run), Restart (restart policy — always, on-failure), After (dependency ordering), User (run as which user), Environment (env vars). You create /etc/systemd/system/myapp.service, run systemctl daemon-reload, then systemctl enable --now myapp.`},
+  {cat:"linux",diff:"easy",q:`What is the difference between > and >> when redirecting output?`,hint:`Overwrite vs append. What about 2> and 2>&1?`,answer:`> redirects stdout and OVERWRITES the file. >> appends to the file. 2> redirects stderr. 2>&1 redirects stderr to the same place as stdout — used in scripts to capture all output: command > output.log 2>&1. /dev/null discards output. In DevOps: python3 app.py >> /var/log/app.log 2>&1 & runs app in background and appends all output to log.`},
+  {cat:"linux",diff:"medium",q:`🔧 TROUBLESHOOT: A Linux server is running slow. What commands do you run to diagnose?`,hint:`CPU, memory, disk I/O, network, top processes.`,answer:`1. top or htop — see CPU%, memory%, top processes. 2. free -h — available memory, swap usage (high swap = memory pressure). 3. df -h — disk space (full disk causes many weird issues). 4. iostat -x 1 — disk I/O wait, high %iowait = disk bottleneck. 5. ss -tulpn — open ports and listening services. 6. dmesg | tail — kernel messages, OOM killer, disk errors. 7. ps aux --sort=-%cpu | head — top CPU consumers. 8. journalctl -xe — recent system errors.`},
+  {cat:"linux",diff:"hard",q:`🔧 TROUBLESHOOT: You cannot SSH into an EC2 instance. Walk through your debugging steps.`,hint:`Instance state, security group, SSH service, key permissions, network.`,answer:`1. AWS Console → EC2 → check instance State is Running. 2. Check Security Group inbound rules — port 22 must be open from your IP. 3. Verify correct key pair (.pem file) that was assigned at launch. 4. Check key permissions: chmod 400 key.pem — SSH refuses keys that are too open (Permission denied). 5. Try EC2 Instance Connect in console — bypasses SSH entirely. 6. Check system logs in console (Actions → Monitor → Get system log) — SSH service may have failed or disk is full. 7. Verify correct username: ubuntu for Ubuntu, ec2-user for Amazon Linux. 8. Verify subnet has a route to internet gateway.`},
+  {cat:"linux",diff:"medium",q:`🔧 TROUBLESHOOT: A cron job is not running even though the crontab looks correct. What do you check?`,hint:`Cron syntax, environment, permissions, cron service, logs.`,answer:`1. crontab -l — verify the cron entry is actually saved. 2. Check cron syntax: fields are minute hour day month weekday. Common mistake: wrong field order. 3. cat /var/log/syslog | grep CRON — see if cron attempts to run and what error occurs. 4. Cron runs with minimal PATH — use absolute paths (/usr/bin/python3 not python3). 5. Check script permissions: chmod +x /path/to/script.sh. 6. Test script manually as the cron user: sudo -u www-data /path/to/script.sh. 7. systemctl status cron — verify cron service is running.`},
+  {cat:"networking",diff:"easy",q:`What happens at each layer when you type https://google.com?`,hint:`DNS → TCP handshake → TLS → HTTP. Think OSI layers.`,answer:`Browser checks DNS cache → queries DNS resolver → gets Google IP. TCP 3-way handshake (SYN, SYN-ACK, ACK) on port 443. TLS handshake — server sends certificate, client verifies against CA, session keys negotiated. HTTP GET sent over encrypted tunnel. Server responds with HTML. This touches Application (HTTP/DNS), Transport (TCP), Network (IP routing), Data Link layers.`},
+  {cat:"networking",diff:"easy",q:`What is the difference between TCP and UDP?`,hint:`TCP: reliable, ordered. UDP: fast but unreliable. Use cases?`,answer:`TCP provides reliable, ordered, error-checked delivery via handshakes and acknowledgements — slower but guaranteed. UDP fires packets with no handshake or guarantee — faster but can drop packets. Use TCP for: HTTP/HTTPS, SSH, databases. Use UDP for: DNS queries, video streaming, gaming, VoIP — where speed matters more than perfect delivery.`},
+  {cat:"networking",diff:"medium",q:`What is the difference between NAT, a firewall, and a load balancer?`,hint:`NAT: address translation. Firewall: traffic filtering. Load balancer: distributes requests.`,answer:`NAT translates private IPs to a public IP — lets many devices share one public IP. A firewall filters traffic based on rules — allows or blocks by IP, port, protocol. A load balancer distributes incoming requests across multiple backend servers. In AWS: NAT Gateway for private subnets, Security Groups as firewalls, ALB/NLB as load balancers.`},
+  {cat:"networking",diff:"medium",q:`What is CIDR notation? What does 10.0.0.0/24 mean?`,hint:`Network bits / host bits. /24 = 256 addresses. Usable hosts?`,answer:`CIDR 10.0.0.0/24 means the first 24 bits are the network address, leaving 8 bits for hosts — 2^8=256 addresses, minus 2 (network + broadcast) = 254 usable hosts. /16 gives 65,534 hosts. /32 is a single host. In AWS VPC, you carve subnets from your VPC CIDR — public subnets get an internet gateway route, private subnets route through a NAT gateway.`},
+  {cat:"networking",diff:"medium",q:`How does DNS resolution work end to end?`,hint:`Recursive resolver → root → TLD → authoritative. What is TTL?`,answer:`Browser checks local cache → queries recursive resolver (ISP or 8.8.8.8) → resolver asks a root nameserver → root points to TLD nameserver (.com) → TLD points to authoritative nameserver → authoritative returns the A record (IP). Result cached per TTL. Low TTL before a DNS cutover, high TTL for stable records. Route53 is AWS managed DNS.`},
+  {cat:"networking",diff:"hard",q:`What is the difference between an AWS Security Group and a Network ACL?`,hint:`SG: stateful, instance-level. NACL: stateless, subnet-level. What does stateful mean?`,answer:`Security Groups are stateful firewalls at the instance/ENI level — if you allow inbound traffic, return traffic is automatically allowed. Rules only allow (no explicit deny). NACLs are stateless at the subnet level — both inbound and outbound must be explicitly set, return traffic must be explicitly allowed. NACLs support deny rules. Best practice: SGs as primary control, NACLs as subnet-level backstop.`},
+  {cat:"networking",diff:"medium",q:`What is the difference between a public subnet and a private subnet in AWS VPC?`,hint:`Internet Gateway route. NAT Gateway. Who can receive inbound internet traffic?`,answer:`A public subnet has a route to an Internet Gateway — instances can have public IPs and receive inbound internet traffic. A private subnet has no direct internet route — instances have private IPs only. They reach the internet for outbound traffic (updates, pulling images) via a NAT Gateway in the public subnet. Databases and app servers go in private subnets; load balancers and bastions in public subnets.`},
+  {cat:"networking",diff:"medium",q:`What is the OSI model? Name all 7 layers with examples.`,hint:`Please Do Not Throw Sausage Pizza Away. Physical to Application.`,answer:`7-Application (HTTP, DNS, SSH), 6-Presentation (SSL/TLS, encoding), 5-Session (session management), 4-Transport (TCP, UDP, ports), 3-Network (IP, routing, ICMP), 2-Data Link (Ethernet, MAC addresses, switches), 1-Physical (cables, fiber, radio waves). In DevOps: most relevant are layers 3-7. Security Groups work at layer 3/4 (IP/port). Load balancers at layer 4 (NLB) or layer 7 (ALB, HTTP-aware routing).`},
+  {cat:"networking",diff:"medium",q:`🔧 TROUBLESHOOT: You deployed an app to EC2 but cannot reach it in a browser. What do you check?`,hint:`Security group, public IP, app listening address, process running.`,answer:`1. Check EC2 Security Group inbound rules — is port 80/443 or your app port open from 0.0.0.0/0? 2. Confirm instance has a public IP (or Elastic IP). 3. SSH into instance: curl localhost:8080 — is the app responding locally? 4. Is the app actually running? ps aux | grep python or systemctl status myapp. 5. Is the app listening on 0.0.0.0 not just 127.0.0.1? In Flask: app.run(host='0.0.0.0'). 6. Check ufw status or iptables -L — host-level firewall. 7. If behind a load balancer: check target group health checks in AWS console.`},
+  {cat:"networking",diff:"hard",q:`🔧 TROUBLESHOOT: Intermittent connection timeouts between two services in the same VPC. How do you diagnose?`,hint:`DNS resolution, connection limits, retries, security groups, pod resources.`,answer:`1. Test DNS: nslookup <hostname> from the failing service — is it resolving consistently? 2. Test direct connectivity: curl -v http://<target-ip>:<port> from the source container. 3. Check security groups on BOTH ends — source egress and target ingress rules. 4. Look for connection pool exhaustion — too many concurrent connections. 5. kubectl top pods — high CPU/memory on target service causing slow responses. 6. Check if HPA scaled target down too aggressively. 7. Enable VPC Flow Logs to capture rejected packets. 8. Check for TIME_WAIT connections piling up: ss -s on the source.`},
+  {cat:"crypto",diff:"easy",q:`What is the difference between symmetric and asymmetric encryption?`,hint:`Symmetric: same key. Asymmetric: public/private pair. Which is faster?`,answer:`Symmetric uses the same key to encrypt and decrypt — fast, used for bulk data (AES-256). Problem: how do you securely share the key? Asymmetric uses a key pair — public key encrypts, private key decrypts. Slow but solves key distribution. TLS uses asymmetric during the handshake to exchange a symmetric session key, then uses that symmetric key for data — best of both worlds.`},
+  {cat:"crypto",diff:"easy",q:`What is the difference between hashing and encryption?`,hint:`Hashing: one-way, no key. Encryption: reversible with key. What is each used for?`,answer:`Hashing is one-way — you cannot reverse a hash. Same input always gives same hash. Used for: password storage, integrity checks (SHA-256, bcrypt). Encryption is reversible — with the right key you can decrypt. Used for: data confidentiality in transit (TLS) or at rest. Never encrypt passwords — hash them with bcrypt or Argon2. Never use MD5 or SHA-1 for passwords.`},
+  {cat:"crypto",diff:"medium",q:`How does TLS/HTTPS work at a high level?`,hint:`Handshake → certificate → CA validation → session key.`,answer:`Client connects → server sends certificate containing its public key and identity → client verifies certificate is signed by a trusted CA → client uses server's public key to securely exchange a session key → all data encrypted with that symmetric key. The certificate proves the server is who it claims to be — preventing MITM attacks. In AWS, use ACM for free CA-signed certificates on ALB.`},
+  {cat:"crypto",diff:"medium",q:`What is SSH key-based authentication and how does it work?`,hint:`Public key on server. Private key on client. Server challenges, client decrypts.`,answer:`Generate a key pair: private key stays on your machine, public key goes in ~/.ssh/authorized_keys on the server. When you connect, the server encrypts a challenge with your public key. Your SSH client decrypts with the private key and sends back proof. Server verifies — no password ever transmitted. Immune to brute force. Used for EC2 SSH access and GitHub git push authentication.`},
+  {cat:"crypto",diff:"hard",q:`What is the difference between self-signed and CA-signed TLS certificates?`,hint:`Self-signed: you are the CA. CA-signed: trusted third party. Browser warnings?`,answer:`A self-signed certificate is signed by your own key — browsers do not trust it by default and show a security warning. Good for: internal tools, dev/testing (ArgoCD uses self-signed). A CA-signed certificate is signed by a trusted CA — no warning for public-facing HTTPS. In AWS, use ACM (AWS Certificate Manager) for free CA-signed certificates attached to ALB or CloudFront.`},
+  {cat:"crypto",diff:"medium",q:`What is a JWT (JSON Web Token) and how is it used for authentication?`,hint:`Header.Payload.Signature. Stateless. What does each part contain?`,answer:`A JWT is a compact token with three base64-encoded parts: Header (algorithm type), Payload (claims: user ID, role, expiry), Signature (HMAC-SHA256 of header+payload using a secret). Server signs on login, sends to client. Client sends it in Authorization: Bearer header. Server verifies signature without a database lookup — stateless. Never store sensitive data in payload (base64 is not encryption). Use short expiry + refresh tokens.`},
+  {cat:"crypto",diff:"medium",q:`🔧 TROUBLESHOOT: Your HTTPS site shows a browser certificate warning. What are the possible causes?`,hint:`Certificate validity, CA trust, hostname mismatch, expiry, chain.`,answer:`1. Self-signed certificate — not trusted by browsers. 2. Certificate expired — check: openssl s_client -connect domain.com:443 | openssl x509 -noout -dates. 3. Hostname mismatch — cert issued for www.example.com but you access api.example.com. Check Subject Alternative Names. 4. Intermediate CA certificate not included — server must send the full certificate chain. 5. Certificate from a CA not in the browser's trust store. 6. Mixed content — HTTPS page loading HTTP resources. Fix: use ACM on ALB, or Let's Encrypt with certbot for self-managed servers.`},
+  {cat:"rds",diff:"easy",q:`What is Amazon RDS and why use it instead of MySQL in a container?`,hint:`Backups, patching, Multi-AZ, automated failover, monitoring.`,answer:`Amazon RDS is a managed relational database. AWS handles: automated backups, software patching, Multi-AZ failover, read replicas, storage scaling, monitoring. Running MySQL in a container requires managing all of this yourself. RDS is more expensive but drastically reduces operational burden. In our project, MySQL in K8s was a learning exercise — in production always prefer RDS.`},
+  {cat:"rds",diff:"medium",q:`What is Multi-AZ in RDS and how is it different from a Read Replica?`,hint:`Multi-AZ: HA/failover, synchronous. Read Replica: scale reads, asynchronous.`,answer:`Multi-AZ deploys a standby RDS instance in a different AZ. Replication is synchronous — every write confirmed on both. If primary fails, AWS fails over to standby in ~60-120 seconds. Read Replicas are asynchronous with possible replication lag — cannot automatically become primary. Multi-AZ = high availability. Read Replica = read performance scaling. Use both together in production.`},
+  {cat:"rds",diff:"medium",q:`What is an RDS Parameter Group and why does it matter?`,hint:`DB engine configuration values. What kind of settings go here?`,answer:`A Parameter Group is a collection of DB engine config values — max_connections, innodb_buffer_pool_size, slow_query_log, character_set. You apply a custom parameter group to tune the database. The default parameter group cannot be modified. Static parameters require a DB reboot; dynamic parameters apply immediately. Always create a custom parameter group in production even if you start with defaults.`},
+  {cat:"rds",diff:"hard",q:`What is connection pooling and why is it critical for RDS?`,hint:`Each DB connection is expensive. What happens under high load without pooling?`,answer:`Every new DB connection requires TCP handshake, authentication, and memory allocation — expensive. Without pooling, each app request opens and closes a connection, crushing the DB under load (MySQL default max_connections is 151). Connection pooling maintains pre-opened connections reused across requests. In Flask/SQLAlchemy: configure pool_size and max_overflow. AWS RDS Proxy is a managed connection pooler — especially useful for Lambda functions.`},
+  {cat:"rds",diff:"medium",q:`How do you secure an RDS instance? Name at least 4 practices.`,hint:`Network, encryption, credentials, access, monitoring.`,answer:`1. Place RDS in private subnets — never expose directly to internet. 2. Security Group allows inbound only from app server SG (not 0.0.0.0/0). 3. Enable encryption at rest (AWS KMS). 4. Enable encryption in transit (SSL/TLS connections). 5. Use IAM database authentication instead of static passwords where possible. 6. Rotate credentials with AWS Secrets Manager. 7. Enable automated backups with adequate retention. 8. Enable Enhanced Monitoring and CloudWatch alarms.`},
+  {cat:"rds",diff:"medium",q:`🔧 TROUBLESHOOT: Your app cannot connect to RDS. 'Connection refused' error. What do you check?`,hint:`Security group, subnet, endpoint, port, credentials. Work from network to app.`,answer:`1. Verify RDS instance is Running in AWS console. 2. Check Security Group on RDS — inbound rule must allow port 3306 from your app server's security group. 3. Test from app server: nc -zv <rds-endpoint> 3306 or telnet <rds-endpoint> 3306. 4. Verify RDS endpoint — copy exact endpoint from console (not an IP). 5. Check if app server and RDS are in the same VPC. 6. Note: 'Access denied' is auth error; 'Connection refused' is network. 7. If 'Too many connections': check connection pool settings and run SHOW PROCESSLIST in MySQL.`},
+  {cat:"rds",diff:"hard",q:`🔧 TROUBLESHOOT: RDS CPU is at 100% and queries are slow. What are your steps?`,hint:`Identify queries, slow query log, indexes, connection count.`,answer:`1. AWS Console → RDS → Performance Insights — identify top SQL queries consuming CPU. 2. Enable slow_query_log parameter (dynamic, no reboot) — logs queries over long_query_time threshold. 3. Run SHOW PROCESSLIST on the DB to see running queries and which are blocked. 4. EXPLAIN <slow query> — look for full table scans (missing indexes). 5. Check connection count: SHOW STATUS LIKE 'Threads_connected' — too many adds overhead. 6. Consider adding a Read Replica to offload reads. 7. Scale up instance class as a short-term fix. 8. Review application code for N+1 query patterns.`},
+  {cat:"terraform",diff:"easy",q:`What is Infrastructure as Code (IaC) and why is it better than clicking in the AWS console?`,hint:`Version control, repeatability, drift, collaboration, disaster recovery.`,answer:`IaC defines infrastructure in code files instead of manual console clicks. Benefits: version-controlled in Git with full audit trail. Repeatable — same code creates identical dev/staging/prod. Reviewable — infrastructure changes via pull requests. Fast disaster recovery — run the code again to rebuild. No configuration drift from manual changes. Manual clicks are not reproducible, not auditable, and do not scale.`},
+  {cat:"terraform",diff:"easy",q:`What is the Terraform state file and why is it important?`,hint:`State maps code to real resources. What happens if it is lost?`,answer:`The state file (terraform.tfstate) maps your configuration to real AWS resources — tracks which code resource corresponds to which AWS resource ID. Without it, Terraform would create duplicates. In teams, state is stored remotely in S3 with DynamoDB locking to prevent simultaneous applies. Never edit manually. State may contain sensitive data — encrypt the S3 bucket. Enable versioning on S3 bucket to recover previous state.`},
+  {cat:"terraform",diff:"medium",q:`What is the difference between terraform plan and terraform apply?`,hint:`Plan: dry run. Apply: executes changes. Why always plan first?`,answer:`terraform plan reads .tf files and current state, shows exactly what will be created, modified, or destroyed — without making any changes. terraform apply executes those changes. Always review plan output — especially look for unexpected destroys (destroy + create = resource replacement = downtime). In CI/CD: plan on PR, apply on merge. Use -out=plan.tfplan to guarantee apply runs exactly that plan.`},
+  {cat:"terraform",diff:"medium",q:`What are Terraform modules and why do you use them?`,hint:`Reusable blocks of Terraform code. Like functions.`,answer:`A module is a container for multiple Terraform resources — a reusable function. Instead of copy-pasting VPC setup across three environments, write a vpc module once and call it with different variables. Modules promote DRY code, encapsulation, and standardization. The Terraform Registry has public modules for AWS VPC, EKS, RDS. In teams: platform engineers write modules, developers consume them.`},
+  {cat:"terraform",diff:"hard",q:`What is Terraform remote backend and why use S3 + DynamoDB?`,hint:`S3: stores state. DynamoDB: prevents simultaneous apply from corrupting state.`,answer:`By default state is stored locally — broken for teams. S3 remote backend stores state so all team members and CI/CD share the same state. DynamoDB provides state locking — when one person runs apply, it acquires a lock preventing simultaneous runs that would corrupt state. S3 bucket needs versioning and encryption. Standard config: terraform { backend 's3' { bucket, key, region, dynamodb_table } }.`},
+  {cat:"terraform",diff:"hard",q:`What is the difference between terraform taint, terraform import, and terraform state rm?`,hint:`Three state surgery commands. What does each do?`,answer:`terraform taint marks a resource for forced replacement on next apply — when a resource is broken but Terraform does not know it. terraform import brings an existing real resource (created manually) under Terraform management by importing it into state. terraform state rm removes a resource from state without destroying it — when you want Terraform to forget about a resource without deleting it. All three are state manipulation operations — use carefully.`},
+  {cat:"terraform",diff:"medium",q:`What is the difference between variable, local, and output in Terraform?`,hint:`variable: input. local: internal computed. output: expose to outside.`,answer:`variable is an input parameter — passed via -var, terraform.tfvars, or TF_VAR_name env vars. local is an internal computed value — intermediate expressions reused in config without exposing as inputs. output exposes values after apply — like a return value, used by other modules or to display important info (EC2 IP, RDS endpoint). All three together make modules flexible and composable.`},
+  {cat:"terraform",diff:"medium",q:`🔧 TROUBLESHOOT: terraform apply fails with 'Error: Resource already exists'. What happened and how do you fix it?`,hint:`Resource exists in AWS but not in Terraform state.`,answer:`This means the resource was created outside Terraform (manually in console) and Terraform is trying to create it again. Options: 1. terraform import <resource_type>.<name> <aws_resource_id> — import the existing resource into state. 2. Manually delete the resource in AWS console, then re-run apply. 3. If it was from a previous Terraform run with lost state: restore state from S3 versioning. Long-term fix: never create resources manually when using Terraform.`},
+  {cat:"terraform",diff:"hard",q:`🔧 TROUBLESHOOT: terraform plan shows a resource will be destroyed and recreated unexpectedly. How do you handle it?`,hint:`Find WHY it is replacing. Immutable fields force replacement. lifecycle block.`,answer:`1. Read plan output carefully — Terraform shows # forces replacement next to the field requiring it. 2. Immutable fields (RDS engine version, EC2 AMI) cannot be updated in-place — they require destroy + create. 3. Options: a) Accept replacement and plan a maintenance window. b) lifecycle { create_before_destroy = true } to create new before destroying old. c) lifecycle { prevent_destroy = true } to block accidental destroys. d) Run terraform refresh to sync state with reality first if it is unexpected drift.`},
+  {cat:"ansible",diff:"easy",q:`What is Ansible and how is it different from Terraform?`,hint:`Terraform: provisions infra. Ansible: configures what already exists.`,answer:`Ansible is a configuration management tool — connects to existing servers and configures them (install packages, copy files, start services). Terraform provisions the infrastructure itself (create EC2, RDS, VPC). They complement: Terraform creates the server, Ansible configures it. Ansible is agentless — uses SSH, no daemon on targets. Push-based. Terraform is declarative; Ansible playbooks are procedural.`},
+  {cat:"ansible",diff:"easy",q:`What is an Ansible playbook and what are its key components?`,hint:`Playbook → plays → tasks → modules. What is a host inventory?`,answer:`A playbook is a YAML automation file. Key components: hosts (which servers from inventory), vars (variables), tasks (actions using modules: apt, copy, template, service, shell), handlers (triggered by notify — e.g. restart nginx after config change), roles (reusable groupings). Inventory lists target hosts — static (hosts.ini) or dynamic (AWS plugin). Playbooks should be idempotent.`},
+  {cat:"ansible",diff:"medium",q:`What does idempotent mean in Ansible and why does it matter?`,hint:`Running the same playbook twice should not break things.`,answer:`Idempotent means applying the same operation multiple times produces the same result as once. In Ansible: if nginx is already installed, apt module skips it. If a config file already has correct content, copy does not overwrite it. This matters because: playbooks can be re-run safely for debugging, failed playbooks retried without side effects, and servers brought back to known state at any time. Raw shell: commands without guards break idempotency.`},
+  {cat:"ansible",diff:"medium",q:`What is the difference between an Ansible role and a playbook?`,hint:`Role: reusable library. Playbook: orchestrates roles for a specific job.`,answer:`A playbook is a top-level automation file — on these hosts, run these tasks/roles. A role is a reusable structured unit with a standard directory layout (tasks/, handlers/, templates/, files/, vars/, defaults/). Example: webserver role installs nginx, deploys config, enables service — written once, included in any playbook. Roles shared via Ansible Galaxy. Think: roles are libraries, playbooks are scripts.`},
+  {cat:"ansible",diff:"hard",q:`What is Ansible Vault and when would you use it?`,hint:`Encrypted variables in Ansible. How do you edit and use in CI/CD?`,answer:`Ansible Vault encrypts sensitive data (passwords, API keys, certificates) within Ansible YAML files — so you can safely commit them to Git. Create encrypted string: ansible-vault encrypt_string 'secret' --name 'db_password'. Edit: ansible-vault edit secrets.yml. Run with vault: ansible-playbook site.yml --ask-vault-pass or --vault-password-file. In CI/CD: store the vault password as a CI secret and pass via --vault-password-file. Secrets are encrypted at rest in Git but available at runtime.`},
+  {cat:"ansible",diff:"medium",q:`How do you handle multiple environments (dev/staging/prod) in Ansible?`,hint:`Inventory groups, group_vars, host_vars. What goes where?`,answer:`Use separate inventory files per environment: inventories/dev/hosts, inventories/prod/hosts. Group variables in group_vars/dev/vars.yml and group_vars/prod/vars.yml — same playbook runs differently based on which inventory you pass. host_vars/specific-host.yml overrides for a single host. Use --limit to target a subset: ansible-playbook site.yml -i inventories/prod --limit webservers. Never hardcode environment-specific values in playbooks — use inventory variables.`},
+  {cat:"ansible",diff:"medium",q:`🔧 TROUBLESHOOT: An Ansible task fails with UNREACHABLE error. What do you check?`,hint:`SSH connectivity, inventory hostname, Python, port 22.`,answer:`1. Test SSH manually: ssh -i key.pem ubuntu@<host> — can you connect at all? 2. Check inventory file — is the hostname/IP correct? Is ansible_user set (ubuntu, ec2-user, root)? 3. Check ansible_ssh_private_key_file is correct and has chmod 400 permissions. 4. Verify port 22 is open in security group. 5. ansible <host> -m ping -i inventory.ini -vvv — verbose flag shows exact SSH error. 6. If behind a bastion: configure ansible_ssh_common_args with ProxyJump. 7. Check Python 3 is installed on the target — Ansible requires it on managed nodes.`},
+  {cat:"ansible",diff:"hard",q:`🔧 TROUBLESHOOT: Your Ansible playbook runs but changes are not taking effect on the server. What could cause this?`,hint:`Idempotency checks skipping, wrong host targeted, handler not triggered, sudo.`,answer:`1. Check which hosts were targeted: ansible-playbook site.yml --list-hosts. 2. Use -v or -vvv for verbose output — shows each task result (ok, changed, skipped). 3. Tasks showing 'ok' instead of 'changed' means Ansible thinks desired state is already met — verify actual server state manually. 4. If a service did not restart after config change: check if you used notify: Restart nginx and have the corresponding handler. Handlers only run if the notifying task reports changed. 5. Check for become: yes (sudo) — tasks requiring root silently fail without it. 6. Verify correct inventory was passed with -i flag.`},
+  {cat:"monitoring",diff:"easy",q:`What are the three pillars of observability? (Metrics, Logs, Traces)`,hint:`Numbers over time vs text events vs request journey.`,answer:`Metrics: numerical measurements over time — CPU%, request rate, error rate, latency p99. Great for dashboards and alerts. (Prometheus, CloudWatch). Logs: timestamped text records of events — what happened and when. Good for debugging. (ELK, CloudWatch Logs). Traces: follow a single request across microservices — show where latency lives. (Jaeger, AWS X-Ray). Metrics tell you something is wrong, logs tell you what, traces show you where.`},
+  {cat:"monitoring",diff:"easy",q:`What is Prometheus and how does it collect metrics?`,hint:`Pull-based. Scrapes /metrics HTTP endpoints. What is an exporter?`,answer:`Prometheus is an open-source time-series monitoring system — pull-based, polls each target's /metrics endpoint at configured intervals (every 15s). Exporters expose metrics for systems without native support: node_exporter for host metrics, mysqld_exporter for MySQL, kube-state-metrics for K8s object state. Metrics queried with PromQL. Alert rules trigger Alertmanager when conditions are met.`},
+  {cat:"monitoring",diff:"medium",q:`What is Grafana and how does it relate to Prometheus?`,hint:`Grafana: visualization. Prometheus: data source. Separate tools.`,answer:`Grafana is a dashboarding tool — it does not store metrics. It connects to data sources like Prometheus, CloudWatch, Elasticsearch and renders graphs and dashboards. Prometheus collects and stores metrics; Grafana queries it via PromQL. Typical K8s stack: Prometheus scrapes pod metrics → Grafana shows dashboards → Alertmanager sends alerts to Slack/PagerDuty. Install all three with kube-prometheus-stack Helm chart.`},
+  {cat:"monitoring",diff:"medium",q:`What is the ELK stack and what does each component do?`,hint:`E=Elasticsearch, L=Logstash, K=Kibana.`,answer:`Elasticsearch: distributed search engine — stores and indexes logs for fast full-text search. Logstash: data pipeline — ingests logs from files/syslog/Beats, parses and transforms, ships to Elasticsearch. Kibana: visualization layer — dashboards, log search, analytics. In modern stacks, Logstash is often replaced by Filebeat (lightweight) or Fluentd. Used for centralized log aggregation across many servers or K8s pods.`},
+  {cat:"monitoring",diff:"hard",q:`What is an SLI, SLO, and SLA? How are they related?`,hint:`SLI: measurement. SLO: target. SLA: contract. Error budget.`,answer:`SLI (Service Level Indicator): quantitative measure — availability%, latency p99, error rate. SLO (Service Level Objective): target value for an SLI — '99.9% of requests under 200ms' — internal engineering goal. SLA (Service Level Agreement): contractual commitment to customers — usually looser than SLO to give a buffer. If SLA is 99.5%, SLO should be 99.9% so you have an error budget. Violating SLA triggers penalties; violating SLO triggers internal action before customers are affected.`},
+  {cat:"monitoring",diff:"medium",q:`What makes a good alert vs a bad alert in production monitoring?`,hint:`Alert fatigue is real. Actionable, urgent, specific. Runbook?`,answer:`A good alert: actionable (engineer knows what to do), urgent (only fires when human action is needed), specific (points to exact problem). Bad alerts: too noisy (fire on non-critical events → alert fatigue → ignored alerts), too vague ('something is wrong'), no context. Best practice: every alert has a runbook — explains what it means, how to investigate, how to fix. Alerts should fire on symptoms (user-facing impact), not just causes.`},
+  {cat:"monitoring",diff:"medium",q:`What is distributed tracing and when do you need it?`,hint:`Microservices, request spans, trace IDs. When does logs-only break down?`,answer:`Distributed tracing tracks a single request as it travels through multiple services — each service adds a span with timing and metadata. All spans share a trace ID. When a request touches 10 microservices, logs-only means searching 10 different log streams for the same trace ID — tracing shows it as one visual timeline. Tools: Jaeger, Zipkin, AWS X-Ray. Essential when: latency is high but you cannot tell which service is slow, errors are intermittent and multi-service.`},
+  {cat:"monitoring",diff:"medium",q:`🔧 TROUBLESHOOT: Prometheus is not scraping a pod's metrics. What do you check?`,hint:`Service discovery, annotations, port, /metrics path, network.`,answer:`1. kubectl exec -it <pod> -- curl localhost:<port>/metrics — does the pod expose /metrics at all? 2. kubectl port-forward svc/prometheus 9090:9090 → open Targets page — is the target listed and what error does it show? 3. Common errors: connection refused (wrong port), 404 (wrong path), unauthorized (metrics need auth). 4. Check if a NetworkPolicy is blocking Prometheus from reaching the pod. 5. For kube-prometheus-stack: ensure pod has prometheus.io/scrape: 'true' annotation, or create a ServiceMonitor with correct labels.`},
+  {cat:"monitoring",diff:"hard",q:`🔧 TROUBLESHOOT: Too many alerts firing that are not real incidents. How do you fix alert fatigue?`,hint:`Thresholds, time windows, grouping, routing, silences.`,answer:`1. Audit firing alerts — true positives (real issues) vs false positives (noise). 2. Raise thresholds — if CPU>80% fires daily but nothing breaks, raise to 90% or add for: 15m duration (only fire if condition persists). 3. Add for: duration to all alerts — filters transient spikes. 4. In Alertmanager: group related alerts to reduce notification count. 5. Route low-severity alerts to Slack (not PagerDuty) to preserve oncall sanity. 6. Silence known maintenance windows. 7. Add inhibition rules — if a host is down, suppress all alerts for services on that host. 8. Real fix: every alert should map to a runbook action. If no action exists, the alert should not exist.`}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let filtered = [...ALL_QUESTIONS];
+let results  = [];          // null | 'strong' | 'improve' | 'skipped'
+let idx      = 0;
+let mode     = 'type';
+let curCat   = 'all';
+let diffFilt = 'all';       // 'all' | 'easy' | 'medium' | 'hard'
+let secs     = 0;
+let timer;
+let weakMode = false;
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  updateCounts();
+  results = filtered.map(() => null);
+  renderProg(); renderDots(); showQ(0); startTimer();
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    secs++;
+    const m = String(Math.floor(secs/60)).padStart(2,'0');
+    const s = String(secs%60).padStart(2,'0');
+    document.getElementById('sess-timer').textContent = m+':'+s;
+  }, 1000);
+}
+
+function updateCounts() {
+  const cats = ['docker','k8s','cicd','project','aws','linux','networking','crypto','rds','terraform','ansible','monitoring'];
+  cats.forEach(c => {
+    const el = document.getElementById('cc-'+c);
+    if (el) el.textContent = ALL_QUESTIONS.filter(q=>q.cat===c).length;
+  });
+  const allEl = document.getElementById('cc-all');
+  if (allEl) allEl.textContent = ALL_QUESTIONS.length;
+}
+
+// ── FILTERING ────────────────────────────────────────────────────────────────
+function filterCat(cat, btn) {
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  curCat = cat;
+  weakMode = false;
+  applyFilter();
+}
+
+function filterDiff() {
+  const opts = ['all','easy','medium','hard'];
+  const cur = opts.indexOf(diffFilt);
+  diffFilt = opts[(cur+1) % opts.length];
+  const btn = document.getElementById('diff-filter-btn');
+  const labels = {'all':'⊙','easy':'🟢','medium':'🟡','hard':'🔴'};
+  btn.textContent = labels[diffFilt];
+  applyFilter();
+}
+
+function applyFilter() {
+  let base = curCat === 'all' ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q=>q.cat===curCat);
+  if (diffFilt !== 'all') base = base.filter(q=>q.diff===diffFilt);
+  filtered = base;
+  results = filtered.map(() => null);
+  idx = 0; secs = 0; weakMode = false;
+  hideFb();
+  updateScores(); renderProg(); renderDots();
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('q-card').style.display='';
+  showQ(0);
+}
+
+function reviewWeak() {
+  const weakQs = filtered.filter((_,i) => results[i] === 'improve' || results[i] === 'skipped');
+  if (!weakQs.length) return;
+  filtered = weakQs;
+  results = filtered.map(() => null);
+  idx = 0; weakMode = true;
+  hideFb(); updateScores(); renderProg(); renderDots();
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('q-card').style.display='';
+  showQ(0);
+}
+
+// ── MODE ─────────────────────────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.getElementById('mb-type').classList.toggle('active', m==='type');
+  document.getElementById('mb-flash').classList.toggle('active', m==='flash');
+  document.getElementById('mode-lbl').textContent = m==='type' ? 'TYPE MODE' : 'FLASH MODE';
+  document.getElementById('type-area').style.display = m==='type' ? '' : 'none';
+  document.getElementById('flash-area').style.display = m==='flash' ? '' : 'none';
+  hideFb(); showQ(idx);
+}
+
+// ── SHOW QUESTION ─────────────────────────────────────────────────────────────
+function showQ(i) {
+  if (i >= filtered.length) { showSummary(); return; }
+  idx = i;
+  const q = filtered[i];
+  const isTrouble = q.q.startsWith('🔧') || q.q.includes('TROUBLESHOOT');
+
+  document.getElementById('q-num').textContent = `Q ${i+1} / ${filtered.length}`;
+  document.getElementById('q-text').textContent = q.q.replace('🔧 TROUBLESHOOT: ','').replace('🔧 ','');
+  document.getElementById('q-card').className = 'q-card' + (isTrouble?' is-trouble':'');
+
+  // badges
+  const catBadge = document.getElementById('q-cat-badge');
+  catBadge.textContent = q.cat;
+  catBadge.className = 'cat-badge cb-'+q.cat;
+
+  const diffBadge = document.getElementById('q-diff-badge');
+  if (isTrouble) {
+    diffBadge.textContent = '🔧 troubleshoot';
+    diffBadge.className = 'diff-badge db-troubleshoot';
+  } else {
+    diffBadge.textContent = q.diff;
+    diffBadge.className = 'diff-badge db-'+q.diff;
+  }
+
+  // hint
+  document.getElementById('hint-box').textContent = q.hint;
+  document.getElementById('hint-box').classList.remove('open');
+
+  // reset type mode
+  const ta = document.getElementById('ans-input');
+  ta.value=''; ta.disabled=false;
+  document.getElementById('char-ct').textContent='0 chars';
+  document.getElementById('submit-btn').disabled=false;
+  document.getElementById('submit-btn').style.display='';
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('thinking').classList.remove('show');
+
+  // reset flash mode
+  document.getElementById('flash-ans').style.display='none';
+  document.getElementById('flash-reveal-row').style.display='block';
+  document.getElementById('flash-ans-text').textContent = q.answer;
+
+  hideFb(); renderDots();
+}
+
+// ── KEYBOARD SHORTCUTS ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  const ta = document.getElementById('ans-input');
+  const isFocused = document.activeElement === ta;
+
+  if (e.key === 'ArrowRight' && !isFocused) { e.preventDefault(); nextQ(); }
+  if (e.key === 'ArrowLeft' && !isFocused) { e.preventDefault(); prevQ(); }
+  if (e.key === 'Tab' && !isFocused) { e.preventDefault(); nextQ(); }
+  if (e.key.toLowerCase() === 's' && !isFocused) { e.preventDefault(); skipQ(); }
+  if (e.key.toLowerCase() === 'h' && !isFocused) { e.preventDefault(); toggleHint(); }
+  if (e.key === 'Enter' && !isFocused && mode==='type') { e.preventDefault(); submitAns(); }
+});
+
+// ── HINT ──────────────────────────────────────────────────────────────────────
+function toggleHint() {
+  document.getElementById('hint-box').classList.toggle('open');
+}
+
+function updateChar() {
+  const len = document.getElementById('ans-input').value.length;
+  document.getElementById('char-ct').textContent = len+' chars';
+}
+
+// ── SUBMIT / EVALUATE ─────────────────────────────────────────────────────────
+function submitAns() {
+  const ans = document.getElementById('ans-input').value.trim();
+  if (ans.length < 15) {
+    document.getElementById('ans-input').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('ans-input').style.borderColor='',1200);
+    return;
+  }
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('ans-input').disabled=true;
+  document.getElementById('thinking').classList.add('show');
+  const q = filtered[idx];
+  setTimeout(()=>evaluate(q, ans), 900);
+}
+
+function evaluate(q, userAns) {
+  document.getElementById('thinking').classList.remove('show');
+  const aLow = userAns.toLowerCase();
+  const kws = getKeywords(q);
+  const hit = kws.filter(k => aLow.includes(k.toLowerCase()));
+  const miss = kws.filter(k => !aLow.includes(k.toLowerCase()));
+  const pct = Math.round((hit.length / Math.max(kws.length,1)) * 100);
+
+  let rating, col;
+  if (pct >= 65) { rating='strong'; col='green'; }
+  else if (pct >= 35) { rating='improve'; col='amber'; }
+  else { rating='improve'; col='red'; }
+
+  results[idx] = rating;
+  updateScores(); renderProg(); renderDots();
+
+  showFeedback(rating, col, pct, hit, miss, q.answer);
+  document.getElementById('next-btn').style.display='';
+  document.getElementById('submit-btn').style.display='none';
+}
+
+function getKeywords(q) {
+  // Map question patterns to key concepts interviewers listen for
+  const text = q.q.toLowerCase() + ' ' + q.cat;
+  const model = q.answer.toLowerCase();
+
+  // Extract meaningful 4-10 char words from model answer, deduplicated
+  const stopwords = new Set(['this','that','with','from','have','been','will','your','they','them','when','what','which','also','some','each','both','only','more','than','into','does','just','like','used','uses','such','even','then','well','most','best','make','need','very','over','here','run','the','and','for','are','not','its','can','you','but','its','was','per','all','any','may','use','how','way','one','two','new','had','has','let','via','put','set','see','get','add','try','top','own','our']);
+  
+  const words = model.match(/\b[a-z][a-z0-9_-]{2,15}\b/g) || [];
+  const unique = [...new Set(words)].filter(w => !stopwords.has(w));
+  
+  // Score by frequency (concepts repeated = important)
+  const freq = {};
+  words.forEach(w => { if (!stopwords.has(w)) freq[w] = (freq[w]||0)+1; });
+  
+  return unique.sort((a,b) => (freq[b]||0)-(freq[a]||0)).slice(0, 10);
+}
+
+function showFeedback(rating, col, pct, hit, miss, modelAns) {
+  const panel = document.getElementById('fb-panel');
+  const pills = document.getElementById('fb-pills');
+  const body  = document.getElementById('fb-body');
+
+  const rLabel = col==='green' ? '✓ Strong' : col==='amber' ? '~ Needs Work' : '✗ Weak';
+  const pClass = col==='green' ? 'pill-green' : col==='amber' ? 'pill-amber' : 'pill-red';
+  pills.innerHTML = `<span class="pill ${pClass}">${rLabel}</span><span class="pill pill-dim">${pct}% coverage</span>`;
+
+  const goodText = hit.length
+    ? `You covered: ${hit.slice(0,4).map(k=>`<strong>${k}</strong>`).join(', ')}.`
+    : 'Keep practising — review the model answer below.';
+
+  const missText = miss.length
+    ? `Also mention: <ul>${miss.slice(0,5).map(k=>`<li><strong>${k}</strong></li>`).join('')}</ul>`
+    : '✓ You hit all the key concepts!';
+
+  body.innerHTML = `
+    <div class="fb-sec">
+      <div class="fb-lbl lbl-good">✓ What you covered</div>
+      <div class="fb-text">${goodText}</div>
+    </div>
+    <div class="fb-sec">
+      <div class="fb-lbl lbl-miss">↑ Key points to add</div>
+      <div class="fb-text">${missText}</div>
+    </div>
+    <div class="fb-sec">
+      <div class="fb-lbl lbl-model">◈ Model Answer</div>
+      <div class="model-box">${modelAns}</div>
+    </div>`;
+
+  panel.classList.add('show');
+}
+
+function hideFb() {
+  document.getElementById('fb-panel').classList.remove('show');
+}
+
+// ── FLASH MODE ────────────────────────────────────────────────────────────────
+function revealFlash() {
+  document.getElementById('flash-ans').style.display='block';
+  document.getElementById('flash-reveal-row').style.display='none';
+}
+
+function markFlash(r) {
+  results[idx] = r === 'strong' ? 'strong' : 'improve';
+  updateScores(); renderProg(); renderDots();
+  if (idx+1 >= filtered.length) { showSummary(); return; }
+  showQ(idx+1);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function nextQ() {
+  if (idx+1 >= filtered.length) { showSummary(); return; }
+  showQ(idx+1);
+}
+function prevQ() {
+  if (idx > 0) showQ(idx-1);
+}
+function skipQ() {
+  results[idx] = 'skipped';
+  updateScores(); renderProg(); renderDots();
+  if (idx+1 >= filtered.length) { showSummary(); return; }
+  showQ(idx+1);
+}
+function shuffleQs() {
+  const base = curCat==='all' ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q=>q.cat===curCat);
+  filtered = base.sort(()=>Math.random()-.5);
+  results = filtered.map(()=>null);
+  idx=0; secs=0; weakMode=false;
+  hideFb(); updateScores(); renderProg(); renderDots();
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('q-card').style.display='';
+  showQ(0);
+}
+
+// ── SCORES ───────────────────────────────────────────────────────────────────
+function updateScores() {
+  const ans = results.filter(r=>r!==null).length;
+  const str = results.filter(r=>r==='strong').length;
+  const imp = results.filter(r=>r==='improve').length;
+  const skp = results.filter(r=>r==='skipped').length;
+  document.getElementById('sc-ans').textContent=ans;
+  document.getElementById('sc-str').textContent=str;
+  document.getElementById('sc-imp').textContent=imp;
+  document.getElementById('sc-skp').textContent=skp;
+}
+
+// ── PROGRESS BAR ──────────────────────────────────────────────────────────────
+function renderProg() {
+  const bar = document.getElementById('prog-bar');
+  bar.innerHTML = filtered.map((_,i) => {
+    let cls='prog-seg';
+    if (results[i]==='strong') cls+=' done';
+    else if (results[i]==='improve') cls+=' weak';
+    else if (results[i]==='skipped') cls+=' skip';
+    else if (i===idx) cls+=' cur';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+  const done = results.filter(r=>r!==null).length;
+  document.getElementById('prog-left').textContent=`${done} of ${filtered.length}`;
+  document.getElementById('prog-pct').textContent=Math.round(done/Math.max(filtered.length,1)*100)+'%';
+}
+
+// ── NAV DOTS ──────────────────────────────────────────────────────────────────
+function renderDots() {
+  const dots = document.getElementById('nav-dots');
+  dots.innerHTML = filtered.map((_,i) => {
+    let cls='ndot';
+    if (results[i]==='strong') cls+=' done';
+    else if (results[i]==='improve') cls+=' weak';
+    else if (results[i]==='skipped') cls+=' skip';
+    else if (i===idx) cls+=' cur';
+    return `<div class="${cls}" onclick="showQ(${i})" title="Q${i+1}"></div>`;
+  }).join('');
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────────────────────
+function showSummary() {
+  clearInterval(timer);
+  document.getElementById('q-card').style.display='none';
+  hideFb();
+  const str = results.filter(r=>r==='strong').length;
+  const imp = results.filter(r=>r==='improve').length;
+  const skp = results.filter(r=>r==='skipped').length;
+  const pct = Math.round(str/Math.max(filtered.length,1)*100);
+
+  let emoji='📖', title='Keep Practising!';
+  if (pct>=80){emoji='🔥';title='You\'re Ready!';}
+  else if (pct>=65){emoji='💪';title='Looking Strong!';}
+  else if (pct>=45){emoji='📈';title='Good Progress!';}
+
+  document.getElementById('sum-emoji').textContent=emoji;
+  document.getElementById('sum-title').textContent=title;
+  document.getElementById('sum-sub').textContent=`${pct}% strong — ${str} strong / ${imp} needs work / ${skp} skipped`;
+  document.getElementById('sum-str').textContent=str;
+  document.getElementById('sum-imp').textContent=imp;
+  document.getElementById('sum-skp').textContent=skp;
+  document.getElementById('summary').classList.add('show');
+}
+
+function restart() {
+  document.getElementById('summary').classList.remove('show');
+  document.getElementById('q-card').style.display='';
+  results=filtered.map(()=>null);
+  idx=0; secs=0;
+  updateScores(); renderProg(); renderDots();
+  showQ(0); startTimer();
+}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
